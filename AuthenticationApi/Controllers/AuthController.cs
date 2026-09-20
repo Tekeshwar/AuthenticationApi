@@ -18,15 +18,15 @@ namespace AuthenticationApi.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login(string username, string password)
+        public IActionResult Login([FromBody] userLogin userLogin)
         {
             // Basic validation
-            if (username == "admin" && password == "12345")
+            if (userLogin.username == "admin" && userLogin.password == "12345")
             {
                 return Ok(new
                 {
                     Message = "Login successful",
-                    token = GenerateJwtToken(username)
+                    token = GenerateJwtToken(userLogin.username)
                 });
             }
 
@@ -36,8 +36,8 @@ namespace AuthenticationApi.Controllers
             });
         }
 
-         
-        
+
+
         private string GenerateJwtToken(string username)
         {
             var jwtSettings = _configuration.GetSection("Jwt");
@@ -54,6 +54,8 @@ namespace AuthenticationApi.Controllers
             {
                 new Claim(ClaimTypes.Name, username),
                 new Claim(ClaimTypes.Role, "Admin"),
+                new Claim ("TenantId","Tenant123"),
+                new Claim ("UserId","user123"),
                 new Claim(JwtRegisteredClaimNames.Jti,
                           Guid.NewGuid().ToString())
             };
@@ -79,6 +81,12 @@ namespace AuthenticationApi.Controllers
             // Convert token to string
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+    }
+
+    public class userLogin
+    {
+        public string username { get; set; }
+        public string password { get; set; }
     }
 }
 
